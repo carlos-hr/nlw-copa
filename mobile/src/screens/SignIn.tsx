@@ -3,12 +3,12 @@ import Logo from '../assets/logo.svg';
 import { Button } from '../components/Button';
 import { Fontisto } from '@expo/vector-icons';
 import { useAuth } from '../hooks/useAuth';
-import { NewPool } from './NewPool';
+import { Pools } from './Pools';
 
 export function SignIn() {
   const { signIn } = useAuth();
 
-  return <NewPool />;
+  return <Pools />;
 
   // return (
   //   <Center flex={1} bgColor="gray.900" p={7}>
