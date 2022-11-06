@@ -50,7 +50,7 @@ export async function poolRoutes(fastify: FastifyInstance) {
   });
 
   fastify.post(
-    '/pools/:id/join',
+    '/pools/join',
     {
       onRequest: [authenticate],
     },
@@ -105,6 +105,102 @@ export async function poolRoutes(fastify: FastifyInstance) {
       });
 
       return res.status(201).send();
+    }
+  );
+
+  fastify.get(
+    '/pools',
+    {
+      onRequest: [authenticate],
+    },
+    async (req) => {
+      const pools = await prisma.pool.findMany({
+        where: {
+          participants: {
+            some: {
+              userId: req.user.sub,
+            },
+          },
+        },
+        include: {
+          owner: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+
+          participants: {
+            select: {
+              id: true,
+
+              user: {
+                select: {
+                  avatarUrl: true,
+                },
+              },
+            },
+            take: 4,
+          },
+
+          _count: {
+            select: {
+              participants: true,
+            },
+          },
+        },
+      });
+
+      return pools;
+    }
+  );
+
+  fastify.get(
+    '/pools/:id',
+    {
+      onRequest: [authenticate],
+    },
+    async (req) => {
+      const getPoolParams = z.object({
+        id: z.string(),
+      });
+
+      const { id } = getPoolParams.parse(req.params);
+
+      const pool = await prisma.pool.findUnique({
+        where: {
+          id,
+        },
+        include: {
+          owner: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+
+          participants: {
+            select: {
+              id: true,
+
+              user: {
+                select: {
+                  avatarUrl: true,
+                },
+              },
+            },
+            take: 4,
+          },
+
+          _count: {
+            select: {
+              participants: true,
+            },
+          },
+        },
+      });
+
+      return pool;
     }
   );
 }
